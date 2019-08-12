@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Built-By: Vortex
+Class-Path: lib/json-20190722.jar
+Build-Jdk: 1.8.0_221
+Created-By: Maven Integration for Eclipse
+Main-Class: com.anz.FxCalculator
+
