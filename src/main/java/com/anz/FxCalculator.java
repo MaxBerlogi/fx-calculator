@@ -1,6 +1,5 @@
 package com.anz;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Scanner;
@@ -43,21 +42,22 @@ public class FxCalculator {
 
 		// Give instructions.
 		System.out.println("Type in a line the form of \"<convert from> <number of units> in <convert to>\" or \"quit\" to exit.");
-		// Read input until user quits.
-		Scanner scanner = new Scanner(System.in);
-		String input;
-		ExecutorService executor = Executors.newCachedThreadPool();
-		while ((input = scanner.nextLine()) != null && !input.equals("quit")) {
-			// Overkill to run such a simple calculation in a separate thread.
-			// Implemented here to show how not to block the main UI thread if
-			// in low latency setting.
-			final String finalInput = input;
-			executor.submit(new Runnable() {
-				public void run() {
-					converter.tryConvert(finalInput);
-				}
-			});
-		}	
+		// Read input until user quits, then dispose of the scanner.
+		try (Scanner scanner = new Scanner(System.in)) {
+			String input;
+			ExecutorService executor = Executors.newCachedThreadPool();
+			while ((input = scanner.nextLine()) != null && !input.equals("quit")) {
+				// Do calculations asynchronously in order not to block the UI thread.
+				final String finalInput = input;
+				executor.submit(new Runnable() {
+					public void run() {
+						converter.tryConvert(finalInput);
+					}
+				});
+			}
+			// Force shutdown when quit was called.
+			executor.shutdownNow();
+		}
 	}
 	
 	private static void setUpLogging() {
